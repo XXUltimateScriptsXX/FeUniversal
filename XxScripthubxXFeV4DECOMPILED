@@ -1,0 +1,379 @@
+local PLACE_ID_1 = 128829279907343
+local PLACE_ID_2 = 119564951960102
+
+if game.PlaceId == PLACE_ID_1 then
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local UserInputService = game:GetService("UserInputService")
+    local LocalPlayer = Players.LocalPlayer
+
+    local gui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+    gui.Name = "SlapSpawnerGUI"
+    gui.ResetOnSpawn = false
+
+    local main = Instance.new("Frame", gui)
+    main.Size = UDim2.new(0, 300, 0, 450)
+    main.Position = UDim2.new(0.5, -150, 0.5, -225)
+    main.BackgroundColor3 = Color3.fromRGB(128, 0, 128)
+    main.BackgroundTransparency = 0.4
+    main.Active = true
+    main.Draggable = true
+
+    local openButton = Instance.new("TextButton", gui)
+    openButton.Size = UDim2.new(0, 100, 0, 35)
+    openButton.Position = UDim2.new(0, 10, 1, -45)
+    openButton.Text = "Open"
+    openButton.TextColor3 = Color3.new(1, 1, 1)
+    openButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    openButton.Font = Enum.Font.SourceSansBold
+    openButton.TextScaled = true
+    openButton.Visible = false
+
+    local title = Instance.new("TextLabel", main)
+    title.Size = UDim2.new(1, -40, 0, 40)
+    title.Position = UDim2.new(0, 10, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "Troll Is A Slapping Tower Slap Spawner"
+    title.TextColor3 = Color3.new(1, 1, 1)
+    title.TextScaled = true
+    title.Font = Enum.Font.SourceSansBold
+
+    local close = Instance.new("TextButton", main)
+    close.Size = UDim2.new(0, 30, 0, 30)
+    close.Position = UDim2.new(1, -35, 0, 5)
+    close.Text = "X"
+    close.TextColor3 = Color3.new(1, 1, 1)
+    close.BackgroundColor3 = Color3.fromRGB(100, 0, 100)
+    close.Font = Enum.Font.SourceSansBold
+    close.TextScaled = true
+
+    local dropdown = Instance.new("ScrollingFrame", main)
+    dropdown.Size = UDim2.new(1, -20, 0, 260)
+    dropdown.Position = UDim2.new(0, 10, 0, 50)
+    dropdown.CanvasSize = UDim2.new(0, 0, 0, 1000)
+    dropdown.ScrollBarThickness = 6
+    dropdown.BackgroundColor3 = Color3.new(0, 0, 0)
+    dropdown.BorderSizePixel = 0
+
+    local AutoSlapToggle = Instance.new("TextButton", main)
+    AutoSlapToggle.Size = UDim2.new(1, -20, 0, 35)
+    AutoSlapToggle.Position = UDim2.new(0, 10, 0, 320)
+    AutoSlapToggle.Text = "AutoSlap: OFF"
+    AutoSlapToggle.TextColor3 = Color3.new(1, 1, 1)
+    AutoSlapToggle.BackgroundColor3 = Color3.fromRGB(255, 100, 0)
+    AutoSlapToggle.Font = Enum.Font.SourceSansBold
+    AutoSlapToggle.TextScaled = true
+
+    local WallHopToggle = Instance.new("TextButton", main)
+    WallHopToggle.Size = UDim2.new(1, -20, 0, 35)
+    WallHopToggle.Position = UDim2.new(0, 10, 0, 360)
+    WallHopToggle.Text = "WallHop: OFF"
+    WallHopToggle.TextColor3 = Color3.new(1, 1, 1)
+    WallHopToggle.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+    WallHopToggle.Font = Enum.Font.SourceSansBold
+    WallHopToggle.TextScaled = true
+
+    local slaps = {
+        "AppleSlap", "BallonSlap", "BigSlap", "BlockSlap", "BlockySlap", "BrickSlap", "DeafultSlap",
+        "DiamondSlap", "DiceSlap", "Error", "FruitSlap", "GalaxySlap", "God's Hand", "GoldSlap",
+        "LuckySlap", "MagnetSlap", "MailSlap", "PoisonSlap", "RainbowLuckySlap", "SpinSlap",
+        "StreakSlap", "StunSlap", "SwapperSlap", "TripleSlap"
+    }
+
+    for i, slap in ipairs(slaps) do
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(1, 0, 0, 40)
+        button.Position = UDim2.new(0, 0, 0, (i - 1) * 42)
+        button.BackgroundColor3 = Color3.new(0, 0, 0)
+        button.TextColor3 = Color3.new(1, 1, 1)
+        button.Font = Enum.Font.SourceSansBold
+        button.TextScaled = true
+        button.Text = slap:gsub("Slap", " Slap")
+        button.Parent = dropdown
+        button.MouseButton1Click:Connect(function()
+            ReplicatedStorage:WaitForChild("EquipSlapEvent"):FireServer(slap)
+        end)
+    end
+
+    local autoSlapEnabled = false
+    AutoSlapToggle.MouseButton1Click:Connect(function()
+        autoSlapEnabled = not autoSlapEnabled
+        AutoSlapToggle.Text = autoSlapEnabled and "AutoSlap: ON" or "AutoSlap: OFF"
+        if autoSlapEnabled then
+            task.spawn(function()
+                while autoSlapEnabled do
+                    task.wait()
+                    local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
+                    if tool and tool:FindFirstChild("Event") then
+                        for _, player in ipairs(Players:GetPlayers()) do
+                            if player ~= LocalPlayer and player.Character then
+                                local args = {"slash", player.Character, Vector3.new(3.8138, -0.0000024, -49.8543)}
+                                tool.Event:FireServer(unpack(args))
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end)
+
+    local wallhopEnabled = false
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+    WallHopToggle.MouseButton1Click:Connect(function()
+        wallhopEnabled = not wallhopEnabled
+        WallHopToggle.Text = "WallHop: " .. (wallhopEnabled and "ON" or "OFF")
+    end)
+
+    local function isNearWall()
+        local character = LocalPlayer.Character
+        if not character then return false end
+        local root = character:FindFirstChild("HumanoidRootPart")
+        if not root then return false end
+        raycastParams.FilterDescendantsInstances = {character}
+        local dirs = {root.CFrame.LookVector, -root.CFrame.LookVector, root.CFrame.RightVector, -root.CFrame.RightVector}
+        for _, dir in ipairs(dirs) do
+            local ray = workspace:Raycast(root.Position, dir * 3, raycastParams)
+            if ray and ray.Instance then
+                return true
+            end
+        end
+        return false
+    end
+
+    local debounce = false
+    UserInputService.JumpRequest:Connect(function()
+        if wallhopEnabled and not debounce and isNearWall() then
+            debounce = true
+            local char = LocalPlayer.Character
+            local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+            local root = char and char:FindFirstChild("HumanoidRootPart")
+            if humanoid and root then
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                root.CFrame = root.CFrame * CFrame.Angles(0, -1, 0)
+                task.wait(0.2)
+                root.CFrame = root.CFrame * CFrame.Angles(0, 1, 0)
+            end
+            debounce = false
+        end
+    end)
+
+    close.MouseButton1Click:Connect(function()
+        main.Visible = false
+        openButton.Visible = true
+    end)
+
+    openButton.MouseButton1Click:Connect(function()
+        main.Visible = true
+        openButton.Visible = false
+    end)
+
+elseif game.PlaceId == PLACE_ID_2 then
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local RunService = game:GetService("RunService")
+    local player = Players.LocalPlayer
+    local passRemote = ReplicatedStorage:WaitForChild("Gameplay"):WaitForChild("Core"):WaitForChild("Default"):WaitForChild("Remotes"):WaitForChild("Pass")
+
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = UDim2.new(0, 300, 0, 450)
+    mainFrame.Position = UDim2.new(0.5, -150, 0.5, -225)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(128, 0, 128)
+    mainFrame.BackgroundTransparency = 0.4
+    mainFrame.Active = true
+    mainFrame.Draggable = true
+    mainFrame.Parent = screenGui
+
+    local title = Instance.new("TextLabel", mainFrame)
+    title.Size = UDim2.new(1, -40, 0, 40)
+    title.Position = UDim2.new(0, 10, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "Movement Pass Controls"
+    title.TextColor3 = Color3.new(1, 1, 1)
+    title.TextScaled = true
+    title.Font = Enum.Font.SourceSansBold
+
+    local closeBtn = Instance.new("TextButton", mainFrame)
+    closeBtn.Size = UDim2.new(0, 30, 0, 30)
+    closeBtn.Position = UDim2.new(1, -35, 0, 5)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 100)
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.TextScaled = true
+    closeBtn.Font = Enum.Font.SourceSansBold
+    closeBtn.Text = "X"
+
+    local openBtn = Instance.new("TextButton", screenGui)
+    openBtn.Size = UDim2.new(0, 100, 0, 35)
+    openBtn.Position = UDim2.new(0, 10, 1, -45)
+    openBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    openBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    openBtn.Font = Enum.Font.SourceSansBold
+    openBtn.TextScaled = true
+    openBtn.Text = "Open"
+    openBtn.Visible = false
+
+    local buttonData = {
+        {Name = "Forward", Arg = {"Forward"}},
+        {Name = "Left", Arg = {"Left"}},
+        {Name = "Right", Arg = {"Right"}},
+    }
+    local activeLoops = {}
+
+    for i, data in ipairs(buttonData) do
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(1, -20, 0, 40)
+        btn.Position = UDim2.new(0, 10, 0, 50 + (i - 1) * 42)
+        btn.BackgroundColor3 = Color3.new(0, 0, 0)
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn.TextScaled = true
+        btn.Font = Enum.Font.SourceSansBold
+        btn.Text = "Start " .. data.Name
+        btn.Parent = mainFrame
+
+        btn.MouseButton1Click:Connect(function()
+            if activeLoops[data.Name] then
+                activeLoops[data.Name]:Disconnect()
+                activeLoops[data.Name] = nil
+                btn.Text = "Start " .. data.Name
+            else
+                btn.Text = "Stop " .. data.Name
+                activeLoops[data.Name] = RunService.Heartbeat:Connect(function()
+                    passRemote:InvokeServer(unpack(data.Arg))
+                    task.wait(0.2)
+                end)
+            end
+        end)
+    end
+
+    closeBtn.MouseButton1Click:Connect(function()
+        mainFrame.Visible = false
+        openBtn.Visible = true
+    end)
+    openBtn.MouseButton1Click:Connect(function()
+        mainFrame.Visible = true
+        openBtn.Visible = false
+    end)
+
+else
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+    local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "TeleportPromptGUI"
+    gui.ResetOnSpawn = false
+    gui.Parent = PlayerGui
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 400, 0, 200)
+    frame.Position = UDim2.new(0.5, -200, 0.5, -100)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    frame.BorderSizePixel = 0
+    frame.Parent = gui
+
+    local msg = Instance.new("TextLabel")
+    msg.Size = UDim2.new(1, -20, 0, 80)
+    msg.Position = UDim2.new(0, 10, 0, 20)
+    msg.BackgroundTransparency = 1
+    msg.TextColor3 = Color3.new(1, 1, 1)
+    msg.TextWrapped = true
+    msg.Font = Enum.Font.SourceSansBold
+    msg.TextScaled = true
+    msg.Text = "This script is for Troll Slapping Tower and Pass Or Die.\nWould you like to go there?"
+    msg.Parent = frame
+
+    local yesButton = Instance.new("TextButton")
+    yesButton.Size = UDim2.new(0, 150, 0, 50)
+    yesButton.Position = UDim2.new(0, 50, 1, -70)
+    yesButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+    yesButton.TextColor3 = Color3.new(1, 1, 1)
+    yesButton.Font = Enum.Font.SourceSansBold
+    yesButton.TextScaled = true
+    yesButton.Text = "Yes"
+    yesButton.Parent = frame
+
+    local noButton = Instance.new("TextButton")
+    noButton.Size = UDim2.new(0, 150, 0, 50)
+    noButton.Position = UDim2.new(1, -200, 1, -70)
+    noButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+    noButton.TextColor3 = Color3.new(1, 1, 1)
+    noButton.Font = Enum.Font.SourceSansBold
+    noButton.TextScaled = true
+    noButton.Text = "No"
+    noButton.Parent = frame
+
+    -- Hide the GUI on No (no destruction)
+    noButton.MouseButton1Click:Connect(function()
+        frame.Visible = false
+    end)
+
+    -- On Yes, open a new prompt to select the game to copy the link
+    yesButton.MouseButton1Click:Connect(function()
+        -- Clear frame content
+        for _, child in ipairs(frame:GetChildren()) do
+            if not child:IsA("UIListLayout") then
+                child:Destroy()
+            end
+        end
+
+        -- New message
+        local newMsg = Instance.new("TextLabel")
+        newMsg.Size = UDim2.new(1, -20, 0, 50)
+        newMsg.Position = UDim2.new(0, 10, 0, 20)
+        newMsg.BackgroundTransparency = 1
+        newMsg.TextColor3 = Color3.new(1, 1, 1)
+        newMsg.Font = Enum.Font.SourceSansBold
+        newMsg.TextScaled = true
+        newMsg.Text = "Copy Link To:"
+        newMsg.Parent = frame
+
+        -- Helper function to copy text to clipboard (only works in Roblox Studio or with clipboard APIs)
+        local function copyToClipboard(text)
+            if setclipboard then
+                setclipboard(text)
+                -- Notify copied
+                local copiedLabel = Instance.new("TextLabel")
+                copiedLabel.Size = UDim2.new(1, -20, 0, 30)
+                copiedLabel.Position = UDim2.new(0, 10, 0, 130)
+                copiedLabel.BackgroundTransparency = 1
+                copiedLabel.TextColor3 = Color3.new(0, 1, 0)
+                copiedLabel.TextScaled = true
+                copiedLabel.Font = Enum.Font.SourceSansBold
+                copiedLabel.Text = "Copied to clipboard!"
+                copiedLabel.Parent = frame
+                task.delay(2, function()
+                    if copiedLabel then copiedLabel:Destroy() end
+                end)
+            else
+                warn("Clipboard not supported")
+            end
+        end
+
+        -- Create buttons for each game
+        local games = {
+            {Name = "Troll Slapping Tower", PlaceId = PLACE_ID_1},
+            {Name = "Pass Or Die", PlaceId = PLACE_ID_2}
+        }
+
+        for i, gameInfo in ipairs(games) do
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(0, 350, 0, 50)
+            btn.Position = UDim2.new(0, 25, 0, 70 + (i-1)*60)
+            btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+            btn.TextColor3 = Color3.new(1, 1, 1)
+            btn.Font = Enum.Font.SourceSansBold
+            btn.TextScaled = true
+            btn.Text = gameInfo.Name
+            btn.Parent = frame
+
+            btn.MouseButton1Click:Connect(function()
+                local url = "https://www.roblox.com/games/" .. tostring(gameInfo.PlaceId)
+                copyToClipboard(url)
+            end)
+        end
+    end)
+end
